@@ -1,0 +1,17 @@
+{
+  "short_name": "Abarrotes El Bajo",
+  "name": "Pedidos de Abarrotes - El Bajo",
+  "icons": [
+    {
+      "src": "https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/grocery/default/512px.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#1B365D",
+  "theme_color": "#1B365D",
+  "display": "standalone",
+  "orientation": "portrait"
+}
