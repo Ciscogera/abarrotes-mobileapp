@@ -35,7 +35,7 @@ from datetime import datetime
 # --- CONFIGURACIÓN DE PÁGINA WEB ---
 st.set_page_config(page_title="Pedidos Abarrotes - El Bajo", page_icon="", layout="centered")
 
-# --- CATÁLOGO DE PRODUCTOS INTEGRADO (Estructura Molde Original) ---
+# --- CATÁLOGO DE PRODUCTOS INTEGRADO (Estructura Molde) ---
 PRODUCTOS_BASE = [
     {"Nombre": "Limon en malla", "Par": 8.0, "Medida": "MALLAS"},
     {"Nombre": "Pomelo", "Par": 10.0, "Medida": "KG"},
@@ -99,24 +99,21 @@ if "pedido_calculado" not in st.session_state:
 if "df_pedido_data" not in st.session_state:
     st.session_state.df_pedido_data = None
 
-# --- NUEVAS FUNCIONES DE PERSISTENCIA HÍBRIDA (LOCALSTORAGE) ---
+# --- FUNCIONES DE PERSISTENCIA HÍBRIDA (LOCALSTORAGE) ---
 def obtener_llave_borrador(responsable, fecha):
     nombre_limpio = responsable.lower().strip().replace(" ", "_")
     return f"borrador_{nombre_limpio}_{fecha}"
 
 def guardar_borrador_en_disco(responsable, fecha):
-    """Escribe los datos en la memoria física interna del celular (Persistencia Cero-Internet)"""
     llave = obtener_llave_borrador(responsable, fecha)
     datos_progreso = {}
     for key in st.session_state.keys():
         if key.startswith("stock_"):
             clave_producto = key.replace("stock_", "")
             datos_progreso[clave_producto] = st.session_state[key]
-    # Inyección directa a la API de almacenamiento del celular a través de la librería js
     js.localStorage.setItem(llave, json.dumps(datos_progreso))
 
 def cargar_borrador_de_disco(responsable, fecha):
-    """Rescata el progreso desde el chip de memoria del teléfono móvil."""
     llave = obtener_llave_borrador(responsable, fecha)
     res = js.localStorage.getItem(llave)
     if res:
@@ -146,6 +143,7 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
     
     ws["A1"] = ":material/grocery: Inventario Abarrote Barra"
     ws["A1"].font = font_titulo
+    
     ws["A2"] = f"Nombre Responsable: {responsable}"
     ws["A2"].font = font_sub
     ws["A3"] = f"Fecha: {fecha}"
@@ -180,9 +178,9 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
     wb.save(buffer)
     return buffer.getvalue()
 
-# --- REDACTOR DE MENSAJE WHATSAPP ---
+# --- REDACTOR DE MENSAJE WHATSAPP (💥 CORREGIDO CON DOBLE BARRA EN JS) ---
 def generar_mensaje_whatsapp(lista_pedidos):
-    mensaje = "Hola, para mañana necesitamos lo siguiente:\n\n"
+    mensaje = "Hola, para mañana necesitamos lo siguiente:\\n\\n"
     categorias_presentes = lista_pedidos["Categoria"].unique()
     
     unidades_esteticas = {
@@ -195,15 +193,15 @@ def generar_mensaje_whatsapp(lista_pedidos):
     
     for cat in categorias_presentes:
         items_cat = lista_pedidos[lista_pedidos["Categoria"] == cat]
-        mensaje += f" *{cat.upper()}*\n"
+        mensaje += f" *{cat.upper()}*\\n"
         for _, row in items_cat.iterrows():
             cant = row['Cantidad_Pedir']
             cant_str = f"{int(cant)}" if cant % 1 == 0 else f"{cant}"
             
             medida_original = row['Medida']
             medida_bonita = unidades_esteticas.get(medida_original, medida_original)
-            mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\n"
-        mensaje += "\n"
+            mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\\n"
+        mensaje += "\\n"
         
     mensaje += "Muchas gracias!"
     return mensaje
@@ -271,7 +269,7 @@ elif st.session_state.paso_flujo == "formulario":
     conteos_usuario = {}
     categorias = ["Frutas y Verduras Frescas", "Especias y Deshidratados", "Abarrotes, Lácteos y Otros"]
     
-    for cat in categories:
+    for cat in categorias:
         df_cat = df_inv[df_inv["Categoria"] == cat]
         if df_cat.empty: continue
         
