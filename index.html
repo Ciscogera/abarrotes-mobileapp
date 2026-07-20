@@ -99,7 +99,7 @@ if "pedido_calculado" not in st.session_state:
 if "df_pedido_data" not in st.session_state:
     st.session_state.df_pedido_data = None
 
-# --- FUNCIONES DE PERSISTENCIA HÍBRIDA (LOCALSTORAGE) ---
+# --- FUNCIONES DE PERSISTENCIA HÍBRIDA (CORREGIDAS CON js.window.localStorage) ---
 def obtener_llave_borrador(responsable, fecha):
     nombre_limpio = responsable.lower().strip().replace(" ", "_")
     return f"borrador_{nombre_limpio}_{fecha}"
@@ -111,11 +111,13 @@ def guardar_borrador_en_disco(responsable, fecha):
         if key.startswith("stock_"):
             clave_producto = key.replace("stock_", "")
             datos_progreso[clave_producto] = st.session_state[key]
-    js.localStorage.setItem(llave, json.dumps(datos_progreso))
+    # Apuntamos correctamente a través del objeto global window
+    js.window.localStorage.setItem(llave, json.dumps(datos_progreso))
 
 def cargar_borrador_de_disco(responsable, fecha):
     llave = obtener_llave_borrador(responsable, fecha)
-    res = js.localStorage.getItem(llave)
+    # Apuntamos correctamente a través del objeto global window
+    res = js.window.localStorage.getItem(llave)
     if res:
         return json.loads(res)
     return {}
@@ -178,7 +180,7 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
     wb.save(buffer)
     return buffer.getvalue()
 
-# --- REDACTOR DE MENSAJE WHATSAPP (💥 CORREGIDO CON DOBLE BARRA EN JS) ---
+# --- REDACTOR DE MENSAJE WHATSAPP ---
 def generar_mensaje_whatsapp(lista_pedidos):
     mensaje = "Hola, para mañana necesitamos lo siguiente:\\n\\n"
     categorias_presentes = lista_pedidos["Categoria"].unique()
@@ -269,6 +271,7 @@ elif st.session_state.paso_flujo == "formulario":
     conteos_usuario = {}
     categorias = ["Frutas y Verduras Frescas", "Especias y Deshidratados", "Abarrotes, Lácteos y Otros"]
     
+    # 💥 CORREGIDO: De 'categories' a 'categorias' en español para evitar NameError
     for cat in categorias:
         df_cat = df_inv[df_inv["Categoria"] == cat]
         if df_cat.empty: continue
