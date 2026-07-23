@@ -186,7 +186,6 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
 # --- REDACTOR DE MENSAJE WHATSAPP ---
 def generar_mensaje_whatsapp(lista_pedidos):
     mensaje = "Hola, para mañana necesitamos lo siguiente:\\n\\n"
-    categorias_presentes = lista_pedidos["Categoria"].unique()
     
     unidades_esteticas = {
         "KG": "Kg",
@@ -196,19 +195,16 @@ def generar_mensaje_whatsapp(lista_pedidos):
         "CAJA": "Caja"
     }
     
-    for cat in categorias_presentes:
-        items_cat = lista_pedidos[lista_pedidos["Categoria"] == cat]
-        mensaje += f" *{cat.upper()}*\\n"
-        for _, row in items_cat.iterrows():
-            cant = row['Cantidad_Pedir']
-            cant_str = f"{int(cant)}" if cant % 1 == 0 else f"{cant}"
+# Recorremos directamente todos los productos sin separarlos por categoría
+    for _, row in lista_pedidos.iterrows():
+        cant = row['Cantidad_Pedir']
+        cant_str = f"{int(cant)}" if cant % 1 == 0 else f"{cant}"
             
-            medida_original = row['Medida']
-            medida_bonita = unidades_esteticas.get(medida_original, medida_original)
-            mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\\n"
-        mensaje += "\\n"
+        medida_original = row['Medida']
+        medida_bonita = unidades_esteticas.get(medida_original, medida_original)
+        mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\\n"
         
-    mensaje += "Muchas gracias!"
+    mensaje += "\\nMuchas gracias!"
     return mensaje
 
 # --- INTERFAZ DE USUARIO ---
