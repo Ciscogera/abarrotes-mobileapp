@@ -201,7 +201,7 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
 
 # --- REDACTOR DE MENSAJE WHATSAPP ---
 def generar_mensaje_whatsapp(lista_pedidos):
-    mensaje = "Hola, para mañana necesitamos lo siguiente:\n\n"
+    mensaje = "Hola, para mañana necesitamos lo siguiente:\\n\\n"
     
     unidades_esteticas = {
         "KG": "Kg",
@@ -218,9 +218,9 @@ def generar_mensaje_whatsapp(lista_pedidos):
             
         medida_original = row['Medida']
         medida_bonita = unidades_esteticas.get(medida_original, medida_original)
-        mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\n"
+        mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\\n"
         
-    mensaje += "\nMuchas gracias!"
+    mensaje += "\\nMuchas gracias!"
     return mensaje
 
 # --- INTERFAZ DE USUARIO ---
