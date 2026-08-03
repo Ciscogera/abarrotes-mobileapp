@@ -69,7 +69,7 @@ PRODUCTOS_BASE = [
     {"Nombre": "Sal", "Par": 6.0, "Medida": "KG"},
     {"Nombre": "Merken", "Par": 1.0, "Medida": "KG"},
     {"Nombre": "Anís estrella", "Par": 0.5, "Medida": "KG"},
-    {"Nombre": "Salsa Inglesa", "Par": 12.0, "Medida": "UND"},
+    {"Nombre": "Salsa Inglesa Lea & Perrin", "Par": 12.0, "Medida": "UND"},
     {"Nombre": "Papa Lays", "Par": 8.0, "Medida": "UND"},
     {"Nombre": "Coco Lopez", "Par": 6.0, "Medida": "UND"},
     {"Nombre": "Jugo en sobre", "Par": 60.0, "Medida": "UND"},
@@ -236,7 +236,7 @@ if st.session_state.paso_flujo == "configuracion":
     responsable_temp = st.text_input(
         "Tu Nombre (Responsable del turno):", 
         value=st.session_state.responsable,
-        placeholder="Ej: Alan Brito"
+        placeholder="Ej: Esteban Dido"
     )
     
     telefono_temp = st.text_input(
