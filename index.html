@@ -28,57 +28,57 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 import io
 import json
-import os
 import urllib.parse
 from datetime import datetime
 
 # --- CONFIGURACIÓN DE PÁGINA WEB ---
 st.set_page_config(page_title="Pedidos Abarrotes - El Bajo", page_icon="", layout="centered")
 
-# --- CATÁLOGO DE PRODUCTOS INTEGRADO (Estructura Molde) ---
+# --- CATÁLOGO DE PRODUCTOS INTEGRADO POR PROVEEDOR ---
 PRODUCTOS_BASE = [
-    {"Nombre": "Limon en malla", "Par": 8.0, "Medida": "MALLAS"},
-    {"Nombre": "Pomelo", "Par": 10.0, "Medida": "KG"},
-    {"Nombre": "Naranja", "Par": 15.0, "Medida": "KG"},
-    {"Nombre": "Limon Sutil", "Par": 8.0, "Medida": "KG"},
-    {"Nombre": "Frutillas", "Par": 4.0, "Medida": "KG"},
-    {"Nombre": "piña", "Par": 2.0, "Medida": "UND"},
-    {"Nombre": "Jengibre", "Par": 2.0, "Medida": "KG"},
-    {"Nombre": "Menta", "Par": 2.0, "Medida": "KG"},
-    {"Nombre": "Pera", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Pepino", "Par": 3.0, "Medida": "UND"},
-    {"Nombre": "Apio", "Par": 1.0, "Medida": "UND"},
-    {"Nombre": "Flores comestibles", "Par": 6.0, "Medida": "UND"},
-    {"Nombre": "Aceitunas verdes sin carozo", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Ramas Canela", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Flor de Jamaica(Hibisco deshidatrado)", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Hibisco confitao", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Rosa rugosa", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Chancaca", "Par": 2.0, "Medida": "KG"},
-    {"Nombre": "Huesillo", "Par": 3.0, "Medida": "KG"},
-    {"Nombre": "Azucar Blanca", "Par": 30.0, "Medida": "KG"},
-    {"Nombre": "Azucar rubia", "Par": 3.0, "Medida": "KG"},
-    {"Nombre": "Maraschinno", "Par": 10.0, "Medida": "UND"},
-    {"Nombre": "Gysophilia", "Par": 6.0, "Medida": "Ramo"},
-    {"Nombre": "Jugo de Tomate", "Par": 10.0, "Medida": "UND"},
-    {"Nombre": "Leche Entera Sin Lactosa", "Par": 12.0, "Medida": "LT"},
-    {"Nombre": "Crema de Leche", "Par": 6.0, "Medida": "LT"},
-    {"Nombre": "Cola cao", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Endulzante", "Par": 6.0, "Medida": "UND"},
-    {"Nombre": "Tabasco", "Par": 12.0, "Medida": "UND"},
-    {"Nombre": "Sal", "Par": 6.0, "Medida": "KG"},
-    {"Nombre": "Merken", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Anís estrella", "Par": 0.5, "Medida": "KG"},
-    {"Nombre": "Salsa Inglesa Lea & Perrin", "Par": 12.0, "Medida": "UND"},
-    {"Nombre": "Papa Lays", "Par": 8.0, "Medida": "UND"},
-    {"Nombre": "Coco Lopez", "Par": 6.0, "Medida": "UND"},
-    {"Nombre": "Jugo en sobre", "Par": 60.0, "Medida": "UND"},
-    {"Nombre": "Nescafe", "Par": 4.0, "Medida": "UND"},
-    {"Nombre": "Té/Hierbas", "Par": 1.0, "Medida": "CAJA"},
-    {"Nombre": "Aji puta madre", "Par": 0.2, "Medida": "KG"},
-    {"Nombre": "Arandanos", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Albahaca", "Par": 1.0, "Medida": "KG"},
-    {"Nombre": "Butterfly Pea", "Par": 0.4, "Medida": "KG"}
+    {"Nombre": "AZUCAR CHANCACA 450GR IANSAx2", "Par": 2.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "AZUCAR BLANCA GRANUL 1KG SMART PRICE MANGAx10", "Par": 50.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "AZUCAR MORENA 500GR IANSAx3", "Par": 3.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CEREZAS MARRASQUINO 3.6KG PERELLO", "Par": 3.6, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "LECHE ENTERA SIN LACTOSA 1LT SOPROLEx3", "Par": 24.0, "Medida": "LT", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CREMA NATURAL PARA BATIR 1LT SOPROLEx2", "Par": 10.0, "Medida": "LT", "Proveedor": "Central Mayorista"},
+    {"Nombre": "SABORIZANTE CHOCOLATE 1KG COLA CAO", "Par": 1.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "STEVIA CERO K 4UN 250ML IANSA", "Par": 4.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "SAL FINA 1KG SMART PRICE MANGAx12", "Par": 12.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "PAPA FRITA ONDULADA 350GR MARCO POLOx2", "Par": 10.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CAFE PRIMERA SELECC 220GR GOLDx2", "Par": 2.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CAFE INST TRADICION 150GR NESCAFEx2", "Par": 2.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "TE NEGRO BOLSITAS 100UN SMART PRICE", "Par": 1.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "Sachet Azucar IANSA 60undx2Cajas", "Par": 2.0, "Medida": "Cajas", "Proveedor": "Central Mayorista"},
+    {"Nombre": "Limon en malla", "Par": 8.0, "Medida": "MALLAS", "Proveedor": "D'Tom"},
+    {"Nombre": "Pomelo", "Par": 10.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Naranja", "Par": 15.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Limon Sutil", "Par": 8.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Frutillas", "Par": 4.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "piña", "Par": 2.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Jengibre", "Par": 2.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Menta", "Par": 2.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Pera", "Par": 1.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Pepino", "Par": 3.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Apio", "Par": 1.0, "Medida": "UND", "Proveedor": "D'Tom"},
+    {"Nombre": "Flores comestibles", "Par": 6.0, "Medida": "POTES", "Proveedor": "D'Tom"},
+    {"Nombre": "Albahaca", "Par": 1.0, "Medida": "KG", "Proveedor": "D'Tom"},
+    {"Nombre": "Gysophilia", "Par": 6.0, "Medida": "Ramos", "Proveedor": "D'Tom"},
+    {"Nombre": "Flores decorativas(Lirios Rojos y Blancos)", "Par": 1.0, "Medida": "Ramos", "Proveedor": "D'Tom"},
+    {"Nombre": "Aceitunas verdes sin carozo", "Par": 1.0, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Ramas Canela", "Par": 1.0, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Hibisco Confitado", "Par": 1.0, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Rosa Rugosa", "Par": 1.0, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Huesillo deshidratado", "Par": 3.0, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Tabasco", "Par": 12.0, "Medida": "UND", "Proveedor": "Fruton"},
+    {"Nombre": "Merken", "Par": 1.0, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Anís estrella", "Par": 0.5, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Salsa Inglea Lea & Perrins", "Par": 12.0, "Medida": "UND", "Proveedor": "Fruton"},
+    {"Nombre": "Crema Coco Lopez", "Par": 6.0, "Medida": "UND", "Proveedor": "Fruton"},
+    {"Nombre": "Albúmina", "Par": 2.0, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Ají puta madre", "Par": 0.4, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Ají Cacho de Cabra (deshidratado)", "Par": 0.5, "Medida": "KG", "Proveedor": "Fruton"},
+    {"Nombre": "Acido Cítrico", "Par": 4.0, "Medida": "KG", "Proveedor": "Fruton"}
 ]
 
 # --- CONTROL DE SESIÓN GENERAL ---
@@ -92,7 +92,6 @@ if "paso_flujo" not in st.session_state:
     st.session_state.paso_flujo = "configuracion"  
 if "excel_final" not in st.session_state:
     st.session_state.excel_final = None
-# Nuevas variables de entorno críticas anti-caídas
 if "datos_borrador" not in st.session_state:
     st.session_state.datos_borrador = {}
 if "pedido_calculado" not in st.session_state:
@@ -100,49 +99,31 @@ if "pedido_calculado" not in st.session_state:
 if "df_pedido_data" not in st.session_state:
     st.session_state.df_pedido_data = None
 
-# --- FUNCIONES DE PERSISTENCIA ANTI-CAÍDAS ---
-def obtener_nombre_archivo_borrador(responsable, fecha):
-    nombre_limpio = responsable.lower().strip().replace(" ", "_")
-    return f"borrador_{nombre_limpio}_{fecha}.json"
+# --- MOTOR DE PERSISTENCIA POR URL ---
+def guardar_borrador_en_url():
+    valores = []
+    for idx in range(len(PRODUCTOS_BASE)):
+        prod_name = PRODUCTOS_BASE[idx]["Nombre"]
+        key = f"stock_{idx}_{prod_name}"
+        if key in st.session_state:
+            valores.append(str(st.session_state[key]))
+        else:
+            valores.append("0")
+    st.query_params["backup"] = ",".join(valores)
 
-def guardar_borrador_en_disco(responsable, fecha):
-    """Resguarda en el disco duro del servidor el estado numérico actual digitado en el celular."""
-    archivo = obtener_nombre_archivo_borrador(responsable, fecha)
-    datos_progreso = {}
-    for key in st.session_state.keys():
-        if key.startswith("stock_"):
-            clave_producto = key.replace("stock_", "")
-            datos_progreso[clave_producto] = st.session_state[key]
-            
-    with open(archivo, "w", encoding="utf-8") as f:
-        json.dump(datos_progreso, f, ensure_ascii=False, indent=4)
-
-def cargar_borrador_de_disco(responsable, fecha):
-    """Rescata los datos guardados en caso de que el internet móvil haya parpadeado."""
-    archivo = obtener_nombre_archivo_borrador(responsable, fecha)
-    if os.path.exists(archivo):
-        with open(archivo, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-# --- CLASIFICADOR DINÁMICO ---
-def categorizar_producto(nombre):
-    nombre_lower = nombre.lower()
-    verduleria = [
-        "limon", "pomelo", "naranja", "frutilla", "piña", "jengibre", 
-        "menta", "pera", "pepino", "apio", "flores comestibles", 
-        "aji", "arandanos", "albahaca"
-    ]
-    especias = [
-        "canela", "jamaica", "hibisco", "rosa rugosa", "chancaca", 
-        "huesillo", "merken", "anís", "butterfly"
-    ]
-    if any(x in nombre_lower for x in verduleria):
-        return "Frutas y Verduras Frescas"
-    elif any(x in nombre_lower for x in especias):
-        return "Especias y Deshidratados"
-    else:
-        return "Abarrotes, Lácteos y Otros"
+def cargar_borrador_de_url():
+    datos = {}
+    if "backup" in st.query_params:
+        try:
+            lista_valores = st.query_params["backup"].split(",")
+            for idx, val in enumerate(lista_valores):
+                if idx < len(PRODUCTOS_BASE):
+                    prod_name = PRODUCTOS_BASE[idx]["Nombre"]
+                    clave_prod = f"{idx}_{prod_name}"
+                    datos[clave_prod] = float(val)
+        except:
+            pass
+    return datos
 
 # --- CONSTRUCTOR DINÁMICO DE EXCEL ---
 def generar_excel_desde_datos(conteos, responsable, fecha):
@@ -154,22 +135,16 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
     font_sub = Font(name="Calibri", size=11, bold=True)
     font_header = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
     fill_header = PatternFill(start_color="1B365D", end_color="1B365D", fill_type="solid")
-    border_thin = Border(
-        left=Side(style='thin', color='CCCCCC'),
-        right=Side(style='thin', color='CCCCCC'),
-        top=Side(style='thin', color='CCCCCC'),
-        bottom=Side(style='thin', color='CCCCCC')
-    )
+    border_thin = Border(left=Side(style='thin', color='CCCCCC'), right=Side(style='thin', color='CCCCCC'), top=Side(style='thin', color='CCCCCC'), bottom=Side(style='thin', color='CCCCCC'))
     
     ws["A1"] = ":material/grocery: Inventario Abarrote Barra"
     ws["A1"].font = font_titulo
-    
     ws["A2"] = f"Nombre Responsable: {responsable}"
     ws["A2"].font = font_sub
     ws["A3"] = f"Fecha: {fecha}"
     ws["A3"].font = font_sub
     
-    headers = ["Nombre", "Par Stock", "Bodega", "MEDIDA", "Pedido", "MEDIDA"]
+    headers = ["Proveedor", "Nombre", "Par Stock", "Bodega", "MEDIDA", "Pedido", "MEDIDA"]
     for col_idx, h in enumerate(headers, 1):
         cell = ws.cell(row=4, column=col_idx, value=h)
         cell.font = font_header
@@ -180,15 +155,15 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
         actual = info["Actual"]
         cantidad_pedir = max(0.0, info["Par"] - actual)
         
-        ws.cell(row=row_idx, column=1, value=info["Producto"]).alignment = Alignment(horizontal="left")
-        ws.cell(row=row_idx, column=2, value=info["Par"]).alignment = Alignment(horizontal="right")
-        ws.cell(row=row_idx, column=3, value=actual if actual > 0 else "").alignment = Alignment(horizontal="right")
-        ws.cell(row=row_idx, column=4, value=info["Medida"]).alignment = Alignment(horizontal="center")
-        ws.cell(row=row_idx, column=5, value=cantidad_pedir if cantidad_pedir > 0 else "").alignment = Alignment(horizontal="right")
-        ws.cell(row=row_idx, column=6, value=info["Medida"]).alignment = Alignment(horizontal="center")
+        ws.cell(row=row_idx, column=1, value=info["Proveedor"]).alignment = Alignment(horizontal="left")
+        ws.cell(row=row_idx, column=2, value=info["Producto"]).alignment = Alignment(horizontal="left")
+        ws.cell(row=row_idx, column=3, value=info["Par"]).alignment = Alignment(horizontal="right")
+        ws.cell(row=row_idx, column=4, value=actual if actual > 0 else "").alignment = Alignment(horizontal="right")
+        ws.cell(row=row_idx, column=5, value=info["Medida"]).alignment = Alignment(horizontal="center")
+        ws.cell(row=row_idx, column=6, value=cantidad_pedir if cantidad_pedir > 0 else "").alignment = Alignment(horizontal="right")
+        ws.cell(row=row_idx, column=7, value=info["Medida"]).alignment = Alignment(horizontal="center")
         
-        for col_idx in range(1, 7):
-            ws.cell(row=row_idx, column=col_idx).border = border_thin
+        for col_idx in range(1, 8): ws.cell(row=row_idx, column=col_idx).border = border_thin
             
     for col in ws.columns:
         max_len = max(len(str(cell.value or '')) for cell in col)
@@ -199,66 +174,56 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
     wb.save(buffer)
     return buffer.getvalue()
 
-# --- REDACTOR DE MENSAJE WHATSAPP ---
+# --- REDACTOR DE MENSAJE WHATSAPP (DIRIGIDO A JEFE DE BARRA Y SEPARADO POR PROVEEDOR) ---
 def generar_mensaje_whatsapp(lista_pedidos):
-    mensaje = "Hola, para mañana necesitamos lo siguiente:\\n\\n"
+    mensaje = "Hola Jefe de barra, para mañana necesitamos los siguientes pedidos por proveedor:\\n\\n"
+    proveedores_presentes = lista_pedidos["Proveedor"].unique()
     
     unidades_esteticas = {
         "KG": "Kg",
         "UND": "Und.",
         "LT": "Lt.",
         "MALLAS": "Mallas",
-        "CAJA": "Caja"
+        "POTES": "Potes",
+        "Ramos": "Ramos",
+        "Cajas": "Cajas"
     }
     
-# Recorremos directamente todos los productos sin separarlos por categoría
-    for _, row in lista_pedidos.iterrows():
-        cant = row['Cantidad_Pedir']
-        cant_str = f"{int(cant)}" if cant % 1 == 0 else f"{cant}"
+    for prov in proveedores_presentes:
+        items_prov = lista_pedidos[lista_pedidos["Proveedor"] == prov]
+        mensaje += f"*PROVEEDOR: {prov.upper()}*\\n"
+        for _, row in items_prov.iterrows():
+            cant = row['Cantidad_Pedir']
+            cant_str = f"{int(cant)}" if cant % 1 == 0 else f"{cant}"
             
-        medida_original = row['Medida']
-        medida_bonita = unidades_esteticas.get(medida_original, medida_original)
-        mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\\n"
+            medida_original = row['Medida']
+            medida_bonita = unidades_esteticas.get(medida_original, medida_original)
+            mensaje += f"• {row['Producto']}: *{cant_str}* {medida_bonita}\\n"
+        mensaje += "\\n"
         
-    mensaje += "\\nMuchas gracias!"
+    mensaje += "Muchas gracias!"
     return mensaje
 
 # --- INTERFAZ DE USUARIO ---
 st.title(" :material/grocery: Pedidos de Abarrotes - El Bajo")
 
 # =====================================================================
-# PASO 1: CONFIGURACIÓN OBLIGATORIA (PANTALLA DE BLOQUEO EN EL CELULAR)
+# PASO 1: CONFIGURACIÓN OBLIGATORIA
 # =====================================================================
 if st.session_state.paso_flujo == "configuracion":
     st.subheader(":material/lock: Configuración Obligatoria de Turno")
     st.write("Por favor, ingresa los siguientes datos para poder habilitar el inventario:")
     
-    responsable_temp = st.text_input(
-        "Tu Nombre (Responsable del turno):", 
-        value=st.session_state.responsable,
-        placeholder="Ej: Esteban Dido"
-    )
-    
-    telefono_temp = st.text_input(
-        " WhatsApp del Proveedor (Celular de 9 dígitos o con +569):", 
-        value=st.session_state.telefono_proveedor,
-        placeholder="Ej: 9 1234 5678 o +569 1234 5678"
-    )
-    
-    fecha_temp = st.date_input(
-        ":material/date_range: Fecha del Inventario:",
-        value=datetime.strptime(st.session_state.fecha_inventario, '%Y-%m-%d')
-    ).strftime('%Y-%m-%d')
+    responsable_temp = st.text_input("Tu Nombre (Responsable del turno):", value=st.session_state.responsable, placeholder="Ej: Alan Brito")
+    telefono_temp = st.text_input(" WhatsApp del Proveedor (Celular de 9 dígitos o con +569):", value=st.session_state.telefono_proveedor, placeholder="Ej: 9 1234 5678")
+    fecha_temp = st.date_input(":material/date_range: Fecha del Inventario:", value=datetime.strptime(st.session_state.fecha_inventario, '%Y-%m-%d')).strftime('%Y-%m-%d')
     
     st.markdown("---")
     
     if st.button(":material/expand_circle_down: INICIAR CONTEO DE STOCK", use_container_width=True):
         tel_limpio = "".join(c for c in telefono_temp if c.isdigit())
-        
-        if len(tel_limpio) == 9 and tel_limpio.startswith("9"):
-            tel_limpio = "56" + tel_limpio
-        elif len(tel_limpio) == 8:
-            tel_limpio = "569" + tel_limpio
+        if len(tel_limpio) == 9 and tel_limpio.startswith("9"): tel_limpio = "56" + tel_limpio
+        elif len(tel_limpio) == 8: tel_limpio = "569" + tel_limpio
             
         if not responsable_temp.strip():
             st.error(":material/error: Debes ingresar tu nombre para poder registrar el documento Excel.")
@@ -268,24 +233,19 @@ if st.session_state.paso_flujo == "configuracion":
             st.session_state.responsable = responsable_temp.strip()
             st.session_state.telefono_proveedor = tel_limpio
             st.session_state.fecha_inventario = fecha_temp
-            
-            # 🔍 RESCATE: Si existe un borrador previo en el servidor para este usuario y fecha, lo inyectamos de golpe
-            st.session_state.datos_borrador = cargar_borrador_de_disco(st.session_state.responsable, st.session_state.fecha_inventario)
-            
+            st.session_state.datos_borrador = cargar_borrador_de_url()
             st.session_state.paso_flujo = "formulario" 
             st.rerun()
 
 # =====================================================================
-# PASO 2: INVENTARIO ACTIVO (DESBLOQUEADO)
+# PASO 2: INVENTARIO ACTIVO
 # =====================================================================
 elif st.session_state.paso_flujo == "formulario":
     st.success(f":material/lock_open_right: Turno Activo: {st.session_state.responsable} | :material/date_range: {st.session_state.fecha_inventario}")
     
-    # Notificación sutil de recuperación de datos en el móvil
     if st.session_state.datos_borrador:
         st.info(":material/restore_page: **Borrador detectado y cargado.** Tu avance anterior ha sido restaurado en los casilleros.")
 
-    # Fila de comandos superior para el pulgar
     col_config, col_save = st.columns(2)
     with col_config:
         if st.button(":material/build_circle: Cambiar Teléfono o Responsable", use_container_width=True):
@@ -293,26 +253,25 @@ elif st.session_state.paso_flujo == "formulario":
             st.session_state.pedido_calculado = False
             st.rerun()
     with col_save:
-        if st.button("💾 GUARDAR AVANCE", type="primary", use_container_width=True):
-            guardar_borrador_en_disco(st.session_state.responsable, st.session_state.fecha_inventario)
-            st.toast("✅ ¡Avance guardado de forma segura en el servidor!", icon="💾")
+        if st.button("GUARDAR AVANCE", type="primary", use_container_width=True):
+            guardar_borrador_en_url()
+            st.toast("¡Avance guardado de forma segura en la URL del dispositivo!", icon=":material/save:")
         
     st.markdown("---")
     
     df_inv = pd.DataFrame(PRODUCTOS_BASE)
-    df_inv["Categoria"] = df_inv["Nombre"].apply(categorizar_producto)
     
-    st.subheader(":material/assignment: Conteo Actual de Insumos")
+    st.subheader(":material/assignment: Conteo Actual de Insumos por Proveedor")
     
     conteos_usuario = {}
-    categorias = ["Frutas y Verduras Frescas", "Especias y Deshidratados", "Abarrotes, Lácteos y Otros"]
+    proveedores = ["Central Mayorista", "D'Tom", "Fruton"]
     
-    for cat in categorias:
-        df_cat = df_inv[df_inv["Categoria"] == cat]
-        if df_cat.empty: continue
+    for prov in proveedores:
+        df_prov = df_inv[df_inv["Proveedor"] == prov]
+        if df_prov.empty: continue
         
-        with st.expander(f":material/expand_circle_down: {cat} ({len(df_cat)} productos)"):
-            for idx, row in df_cat.iterrows():
+        with st.expander(f":material/inventory_2: {prov} ({len(df_prov)} productos)"):
+            for idx, row in df_prov.iterrows():
                 prod_name = row["Nombre"]
                 par_stock = row["Par"]
                 medida = row["Medida"]
@@ -322,23 +281,16 @@ elif st.session_state.paso_flujo == "formulario":
                 
                 decimales_activos = (par_stock % 1 != 0)
                 if decimales_activos:
-                    step_val = 0.1  # Productos fraccionados avanzan de 0.1 en 0.1
+                    step_val = 0.1
                 else:
-                    step_val = 1.0  # Productos enteros avanzan de 1 en 1 al usar los botones + y -
+                    step_val = 1.0
                 
                 min_val = 0.0
-                val_format = "%.1f"  # Acepta y preserva decimales ingresados manualmente (ej: 2.4) sin redondear
+                val_format = "%.1f"
                 
                 clave_prod = f"{idx}_{prod_name}"
                 if clave_prod in st.session_state.datos_borrador:
                     val_inicial = float(st.session_state.datos_borrador[clave_prod])
-                else:
-                    val_inicial = min_val
-                
-                # Inyección del backup si es que la señal se cortó a mitad del turno
-                clave_prod = f"{idx}_{prod_name}"
-                if clave_prod in st.session_state.datos_borrador:
-                    val_inicial = float(st.session_state.datos_borrador[clave_prod]) if decimales_activos else int(st.session_state.datos_borrador[clave_prod])
                 else:
                     val_inicial = min_val
                 
@@ -356,47 +308,41 @@ elif st.session_state.paso_flujo == "formulario":
                     "Par": par_stock,
                     "Actual": actual_val,
                     "Medida": medida,
-                    "Categoria": cat
+                    "Proveedor": prov
                 }
                 st.markdown("---")
                 
-    # --- PROCESAMIENTO ESTABLE ---
-    if st.button(":material/calculate: CALCULAR PEDIDO DE ABARROTES", use_container_width=True):
+    if st.button(":material/calculate: CALCULAR PEDIDOS POR PROVEEDOR", use_container_width=True):
         registros_pedido = []
         for clave, info in conteos_usuario.items():
-            cantidad_pedir = max(0.0, info["Par"] - info["Actual"])
-            if cantidad_pedir > 0:
+            amount_pedir = max(0.0, info["Par"] - info["Actual"])
+            if amount_pedir > 0:
                 registros_pedido.append({
-                    "Categoria": info["Categoria"],
+                    "Proveedor": info["Proveedor"],
                     "Producto": info["Producto"],
-                    "Cantidad_Pedir": cantidad_pedir,
+                    "Cantidad_Pedir": amount_pedir,
                     "Medida": info["Medida"]
                 })
                 
         st.session_state.df_pedido_data = pd.DataFrame(registros_pedido)
         
         if not st.session_state.df_pedido_data.empty:
-            guardar_borrador_en_disco(st.session_state.responsable, st.session_state.fecha_inventario)
-            st.session_state.excel_final = generar_excel_desde_datos(
-                conteos_usuario, 
-                st.session_state.responsable, 
-                st.session_state.fecha_inventario
-            )
+            guardar_borrador_en_url()
+            st.session_state.excel_final = generar_excel_desde_datos(conteos_usuario, st.session_state.responsable, st.session_state.fecha_inventario)
             st.session_state.pedido_calculado = True
             st.rerun()
         else:
             st.session_state.pedido_calculado = False
-            st.success(" ¡Todos los niveles de stock están completos! No es necesario realizar pedidos hoy.")
+            st.success("¡Todos los niveles de stock están completos! No es necesario realizar pedidos hoy.")
 
-    # Vista persistente: Asegura que los resultados no parpadeen ni desaparezcan al hacer clic
     if st.session_state.pedido_calculado and st.session_state.df_pedido_data is not None:
         df_pedido = st.session_state.df_pedido_data
         
-        st.subheader(":material/shopping_cart: Pedido Sugerido")
-        st.dataframe(df_pedido[["Categoria", "Producto", "Cantidad_Pedir", "Medida"]], use_container_width=True, hide_index=True)
+        st.subheader(":material/shopping_cart: Pedidos Sugeridos por Proveedor")
+        st.dataframe(df_pedido[["Proveedor", "Producto", "Cantidad_Pedir", "Medida"]], use_container_width=True, hide_index=True)
         
         texto_pedido = generar_mensaje_whatsapp(df_pedido)
-        st.subheader(":material/preview: Vista Previa del Pedido")
+        st.subheader(":material/preview: Vista Previa del Mensaje para Jefe de Barra")
         st.code(texto_pedido, language="text")
         
         texto_codificado = urllib.parse.quote(texto_pedido)
