@@ -36,17 +36,18 @@ st.set_page_config(page_title="Pedidos Abarrotes - El Bajo", page_icon="", layou
 
 # --- CATÁLOGO DE PRODUCTOS INTEGRADO POR PROVEEDOR ---
 PRODUCTOS_BASE = [
-    {"Nombre": "CHANCACA", "Par": 2.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
-    {"Nombre": "AZUCAR BLANCA GRANUL 1KG", "Par": 50.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
-    {"Nombre": "AZUCAR MORENA", "Par": 3.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
-    {"Nombre": "CEREZAS MARRASQUINO", "Par": 3.6, "Medida": "KG", "Proveedor": "Central Mayorista"},
-    {"Nombre": "LECHE ENTERA SIN LACTOSA 1LT ", "Par": 24.0, "Medida": "LT", "Proveedor": "Central Mayorista"},
-    {"Nombre": "CREMA NATURAL PARA BATIR 1LT ", "Par": 10.0, "Medida": "LT", "Proveedor": "Central Mayorista"},
-    {"Nombre": "COLA CAO", "Par": 1.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
-    {"Nombre": "STEVIA CERO K", "Par": 4.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
-    {"Nombre": "SAL FINA 1KG ", "Par": 12.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
-    {"Nombre": "PAPA FRITA ONDULADA 350GR MARCO POLO", "Par": 10.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
-    {"Nombre": "CAFE PRIMERA SELECC 220GR GOLD", "Par": 2.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "AZUCAR CHANCACA 450GR IANSAx2", "Par": 2.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "AZUCAR BLANCA GRANUL 1KG SMART PRICE MANGAx10", "Par": 50.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "AZUCAR MORENA 500GR IANSAx3", "Par": 3.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CEREZAS MARRASQUINO 3.6KG PERELLO", "Par": 3.6, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "LECHE ENTERA SIN LACTOSA 1LT SOPROLEx3", "Par": 24.0, "Medida": "LT", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CREMA NATURAL PARA BATIR 1LT SOPROLEx2", "Par": 10.0, "Medida": "LT", "Proveedor": "Central Mayorista"},
+    {"Nombre": "SABORIZANTE CHOCOLATE 1KG COLA CAO", "Par": 1.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "STEVIA CERO K 4UN 250ML IANSA", "Par": 4.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "SAL FINA 1KG SMART PRICE MANGAx12", "Par": 12.0, "Medida": "KG", "Proveedor": "Central Mayorista"},
+    {"Nombre": "PAPA FRITA ONDULADA 350GR MARCO POLOx2", "Par": 10.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CAFE PRIMERA SELECC 220GR GOLDx2", "Par": 2.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
+    {"Nombre": "CAFE INST TRADICION 150GR NESCAFEx2", "Par": 2.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
     {"Nombre": "TE NEGRO BOLSITAS 100UN SMART PRICE", "Par": 1.0, "Medida": "UND", "Proveedor": "Central Mayorista"},
     {"Nombre": "Sachet Azucar IANSA 60undx2Cajas", "Par": 2.0, "Medida": "Cajas", "Proveedor": "Central Mayorista"},
     {"Nombre": "Limon en malla", "Par": 8.0, "Medida": "MALLAS", "Proveedor": "D'Tom"},
@@ -173,7 +174,7 @@ def generar_excel_desde_datos(conteos, responsable, fecha):
     wb.save(buffer)
     return buffer.getvalue()
 
-# --- REDACTOR DE MENSAJE WHATSAPP (DIRIGIDO A JEFE DE BARRA Y SEPARADO POR PROVEEDOR) ---
+# --- REDACTOR DE MENSAJE WHATSAPP ---
 def generar_mensaje_whatsapp(lista_pedidos):
     mensaje = "Hola Jefe de barra, para mañana necesitamos los siguientes pedidos por proveedor:\\n\\n"
     proveedores_presentes = lista_pedidos["Proveedor"].unique()
@@ -261,6 +262,7 @@ elif st.session_state.paso_flujo == "formulario":
     df_inv = pd.DataFrame(PRODUCTOS_BASE)
     
     st.subheader(":material/assignment: Conteo Actual de Insumos por Proveedor")
+    st.caption("Activa únicamente los proveedores que necesites inventariar hoy:")
     
     conteos_usuario = {}
     proveedores = ["Central Mayorista", "D'Tom", "Fruton"]
@@ -269,47 +271,53 @@ elif st.session_state.paso_flujo == "formulario":
         df_prov = df_inv[df_inv["Proveedor"] == prov]
         if df_prov.empty: continue
         
-        with st.expander(f":material/inventory_2: {prov} ({len(df_prov)} productos)"):
-            for idx, row in df_prov.iterrows():
-                prod_name = row["Nombre"]
-                par_stock = row["Par"]
-                medida = row["Medida"]
-                
-                st.markdown(f"*{prod_name}*")
-                st.caption(f" Medida: {medida} | Par: {par_stock}")
-                
-                decimales_activos = (par_stock % 1 != 0)
-                if decimales_activos:
-                    step_val = 0.1
-                else:
-                    step_val = 1.0
-                
-                min_val = 0.0
-                val_format = "%.1f"
-                
-                clave_prod = f"{idx}_{prod_name}"
-                if clave_prod in st.session_state.datos_borrador:
-                    val_inicial = float(st.session_state.datos_borrador[clave_prod])
-                else:
-                    val_inicial = min_val
-                
-                actual_val = st.number_input(
-                    label=f"En Stock ({medida})",
-                    min_value=min_val,
-                    value=val_inicial,
-                    step=step_val,
-                    format=val_format,
-                    key=f"stock_{idx}_{prod_name}"
-                )
-                
-                conteos_usuario[clave_prod] = {
-                    "Producto": prod_name,
-                    "Par": par_stock,
-                    "Actual": actual_val,
-                    "Medida": medida,
-                    "Proveedor": prov
-                }
-                st.markdown("---")
+        # Interruptor de activación por proveedor
+        activar_prov = st.toggle(
+            f"Inventariar **{prov}** ({len(df_prov)} productos)",
+            value=False,
+            key=f"activar_{prov}"
+        )
+        
+        if activar_prov:
+            with st.expander(f":material/inventory_2: Detalle de insumos - {prov}", expanded=True):
+                for idx, row in df_prov.iterrows():
+                    prod_name = row["Nombre"]
+                    par_stock = row["Par"]
+                    medida = row["Medida"]
+                    
+                    st.markdown(f"*{prod_name}*")
+                    st.caption(f" Medida: {medida} | Par: {par_stock}")
+                    
+                    decimales_activos = (par_stock % 1 != 0)
+                    step_val = 0.1 if decimales_activos else 1.0
+                    
+                    min_val = 0.0
+                    val_format = "%.1f"
+                    
+                    clave_prod = f"{idx}_{prod_name}"
+                    if clave_prod in st.session_state.datos_borrador:
+                        val_inicial = float(st.session_state.datos_borrador[clave_prod])
+                    else:
+                        val_inicial = min_val
+                    
+                    actual_val = st.number_input(
+                        label=f"En Stock ({medida})",
+                        min_value=min_val,
+                        value=val_inicial,
+                        step=step_val,
+                        format=val_format,
+                        key=f"stock_{idx}_{prod_name}"
+                    )
+                    
+                    conteos_usuario[clave_prod] = {
+                        "Producto": prod_name,
+                        "Par": par_stock,
+                        "Actual": actual_val,
+                        "Medida": medida,
+                        "Proveedor": prov
+                    }
+                    st.markdown("---")
+        st.markdown("")
                 
     if st.button(":material/calculate: CALCULAR PEDIDOS POR PROVEEDOR", use_container_width=True):
         registros_pedido = []
@@ -332,7 +340,7 @@ elif st.session_state.paso_flujo == "formulario":
             st.rerun()
         else:
             st.session_state.pedido_calculado = False
-            st.success("¡Todos los niveles de stock están completos! No es necesario realizar pedidos hoy.")
+            st.success("¡Todos los niveles de stock están completos para los proveedores seleccionados! No es necesario realizar pedidos hoy.")
 
     if st.session_state.pedido_calculado and st.session_state.df_pedido_data is not None:
         df_pedido = st.session_state.df_pedido_data
